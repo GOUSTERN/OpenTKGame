@@ -6,6 +6,7 @@
 
 namespace OpenTKGame.Core
 {
+    //TODO Add uniforms
     internal class ShaderProgram : IDisposable
     {
         private int _program;

@@ -3,16 +3,17 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using StbImageSharp;
 
 namespace OpenTKGame.Core
 {
     public class Game : GameWindow
     {
         float[] verts = {
-             0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
-             0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
-            -0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f
+             0.5f,  0.5f, 0.0f,     1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f,     1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f,     0.0f, 1.0f
         };
 
         uint[] indices = {
@@ -22,6 +23,7 @@ namespace OpenTKGame.Core
 
         private VertexArray vertexArray;
         private ShaderProgram shaderProgram;
+        int textureId;
 
         public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
         {
@@ -53,7 +55,7 @@ namespace OpenTKGame.Core
             layout.AddAttribute(
                 new VertexArrayAttribute()
                 {
-                    Size = 3,
+                    Size = 2,
                     Type = VertexAttribPointerType.Float,
                     normalized = false,
                     SizeofType = sizeof(float)
@@ -76,6 +78,21 @@ namespace OpenTKGame.Core
 
             vertexShader.Dispose();
             fragmentShader.Dispose();
+
+
+            StbImage.stbi_set_flip_vertically_on_load(1);
+
+            textureId = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, textureId);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            ImageResult image = ImageResult.FromStream(LoadImageStream("bricksx64.png"), ColorComponents.RedGreenBlueAlpha);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
         }
 
         protected override void OnUnload()
@@ -88,11 +105,12 @@ namespace OpenTKGame.Core
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            GL.ClearColor(System.Drawing.Color.Red);
+            GL.ClearColor(System.Drawing.Color.DarkKhaki);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             shaderProgram.Use();
             vertexArray.Use();
+            GL.BindTexture(TextureTarget.Texture2D, textureId);
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
             SwapBuffers();
@@ -135,6 +153,11 @@ namespace OpenTKGame.Core
             }
 
             return shaderSource;
+        }
+
+        private FileStream LoadImageStream(string filePath)
+        {
+            return File.OpenRead(Directory.GetCurrentDirectory() + "\\Resources\\Textures\\" + filePath);
         }
     }
 }
