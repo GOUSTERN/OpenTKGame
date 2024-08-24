@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Core
+﻿namespace OpenTKGame.Core
 {
     class Program
     {

@@ -4,18 +4,24 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace Core
+namespace OpenTKGame.Core
 {
     public class Game : GameWindow
     {
         float[] verts = {
-            -0.5f,  -0.5f, 0.0f,
-             0.5f,  -0.5f, 0.0f,
-             0.0f,   0.5f, 0.0f
+             0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
+             0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
+            -0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f
         };
 
-        int vao;
-        int shad;
+        uint[] indices = {
+            0, 1, 3,
+            1, 2, 3
+        };
+
+        private VertexArray vertexArray;
+        private ShaderProgram shaderProgram;
 
         public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
         {
@@ -26,41 +32,58 @@ namespace Core
         {
             base.OnLoad();
 
-            vao = GL.GenVertexArray();
+            VertexBuffer vertexBuffer = new VertexBuffer();
+            vertexBuffer.Use();
+            vertexBuffer.BufferData(verts, sizeof(float));
 
-            int vbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, verts.Length * sizeof(float), verts, BufferUsageHint.StaticDraw);
+            vertexArray = new VertexArray();
+            vertexArray.Use();
+            vertexBuffer.Use();
+            
+            VertexArrayLayout layout = new VertexArrayLayout();
+            layout.AddAttribute(
+                new VertexArrayAttribute()
+                {
+                    Size = 3,
+                    Type = VertexAttribPointerType.Float,
+                    normalized = false,
+                    SizeofType = sizeof(float)
+                }
+            );
+            layout.AddAttribute(
+                new VertexArrayAttribute()
+                {
+                    Size = 3,
+                    Type = VertexAttribPointerType.Float,
+                    normalized = false,
+                    SizeofType = sizeof(float)
+                }
+            );
+            vertexArray.SpecifyAttributeLayout(layout);
 
-            GL.BindVertexArray(vao);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
-            GL.EnableVertexArrayAttrib(vao, 0);
+            ElementBuffer elementBuffer = new ElementBuffer();
+            elementBuffer.Use();
+            elementBuffer.BufferData(indices, sizeof(uint));
 
-            shad = GL.CreateProgram();
+            VertexShader vertexShader = new VertexShader();
+            vertexShader.Compile(LoadShaderSource("Test.vert"));
 
-            int vert = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vert, LoadShaderSource("Test.vert"));
-            GL.CompileShader(vert);
+            FragmentShader fragmentShader = new FragmentShader();
+            fragmentShader.Compile(LoadShaderSource("Test.frag"));
 
-            int frag = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(frag, LoadShaderSource("Test.frag"));
-            GL.CompileShader(frag);
+            shaderProgram = new ShaderProgram(fragmentShader, vertexShader);
+            shaderProgram.LinkProgram();
 
-            GL.AttachShader(shad, vert);
-            GL.AttachShader(shad, frag);
-
-            GL.LinkProgram(shad);
-
-            GL.DeleteShader(vert);
-            GL.DeleteShader(frag);
+            vertexShader.Dispose();
+            fragmentShader.Dispose();
         }
 
         protected override void OnUnload()
         {
             base.OnUnload();
 
-            GL.DeleteVertexArray(vao);
-            GL.DeleteProgram(shad);
+            vertexArray.Dispose();
+            shaderProgram.Dispose();
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -68,9 +91,9 @@ namespace Core
             GL.ClearColor(System.Drawing.Color.Red);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            GL.UseProgram(shad);
-            GL.BindVertexArray(vao);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            shaderProgram.Use();
+            vertexArray.Use();
+            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
             SwapBuffers();
 
