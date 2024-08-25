@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTKGame", "OpenTKGame.csproj", "{6B360C55-0651-42F0-A2F7-8195B16525B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTKGame", "OpenTKGame.csproj", "{686090D1-3C62-437B-8961-1CB177623C3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6B360C55-0651-42F0-A2F7-8195B16525B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B360C55-0651-42F0-A2F7-8195B16525B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6B360C55-0651-42F0-A2F7-8195B16525B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B360C55-0651-42F0-A2F7-8195B16525B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{686090D1-3C62-437B-8961-1CB177623C3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{686090D1-3C62-437B-8961-1CB177623C3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{686090D1-3C62-437B-8961-1CB177623C3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{686090D1-3C62-437B-8961-1CB177623C3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

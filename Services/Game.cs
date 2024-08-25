@@ -23,7 +23,7 @@ namespace OpenTKGame.Core
 
         private VertexArray vertexArray;
         private ShaderProgram shaderProgram;
-        int textureId;
+        private Texture texture;
 
         public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
         {
@@ -82,17 +82,13 @@ namespace OpenTKGame.Core
 
             StbImage.stbi_set_flip_vertically_on_load(1);
 
-            textureId = GL.GenTexture();
+            texture = new Texture(TextureTarget.Texture2D);
+
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, textureId);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
-            ImageResult image = ImageResult.FromStream(LoadImageStream("bricksx64.png"), ColorComponents.RedGreenBlueAlpha);
-
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+            texture.Use();
+            texture.SetWrapping(TextureWrapMode.Repeat);
+            texture.SetFiltering(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
+            texture.LoadTexture(new Texture.LoadTextureArgs("bricksx64.png"));
         }
 
         protected override void OnUnload()
@@ -110,7 +106,7 @@ namespace OpenTKGame.Core
 
             shaderProgram.Use();
             vertexArray.Use();
-            GL.BindTexture(TextureTarget.Texture2D, textureId);
+            texture.Use();
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
             SwapBuffers();
@@ -153,11 +149,6 @@ namespace OpenTKGame.Core
             }
 
             return shaderSource;
-        }
-
-        private FileStream LoadImageStream(string filePath)
-        {
-            return File.OpenRead(Directory.GetCurrentDirectory() + "\\Resources\\Textures\\" + filePath);
         }
     }
 }
