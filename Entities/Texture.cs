@@ -58,8 +58,9 @@ namespace OpenTKGame.Core
             GL.DeleteTexture(_textureId);
         }
 
-        public void Use()
+        public void Use(TextureUnit unit = TextureUnit.Texture0)
         {
+            GL.ActiveTexture(unit);
             GL.BindTexture(_textureTarget, _textureId);
         }
 

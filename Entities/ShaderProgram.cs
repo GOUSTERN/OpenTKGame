@@ -57,12 +57,17 @@ namespace OpenTKGame.Core
             GL.Uniform4(TryGetUniform(uniformName), vector);
         }
 
+        public void SetMatrix4(string uniformName, ref Matrix4 matrix)
+        {
+            GL.UniformMatrix4(TryGetUniform(uniformName), true, ref matrix);
+        }
+
         private int TryGetUniform(string name)
         {
             if (!_uniforms.ContainsKey(name))
                 _uniforms[name] = GL.GetUniformLocation(_program, name);
 
-            if (_uniforms[name] <= 0)
+            if (_uniforms[name] < 0)
                 throw new Exception($"Uniform with name {name} cannot be found");
 
             return _uniforms[name];
