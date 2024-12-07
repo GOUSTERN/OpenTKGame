@@ -148,6 +148,16 @@ namespace OpenTKGame.Core
             camera = new Camera(74.0f, (float)WindowSize.X / WindowSize.Y);
             camera.Transform.Move(Vector3.UnitZ * -3);
             camera.Transform.ForceUpdate();
+
+            try
+            {
+                List<Formatters.ModelData> models = Formatters.ObjectFileReader.ReadFile("monkey.obj");
+                Console.WriteLine(models[0].name);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         protected override void OnUnload()
@@ -218,7 +228,7 @@ namespace OpenTKGame.Core
                 camera.Transform.Rotate(camera.Transform.Right(), mouse.Delta.Y * 0.04f);
             }
 
-            Console.WriteLine(1 / e.Time);
+            //Console.WriteLine(1 / e.Time);
 
             if (KeyboardState.IsKeyPressed(Keys.Escape))
             {
