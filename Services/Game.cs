@@ -5,6 +5,8 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using StbImageSharp;
 
+using OpenTKGame.Graphics;
+
 namespace OpenTKGame.Core
 {
     public class Game : GameWindow
@@ -12,72 +14,65 @@ namespace OpenTKGame.Core
         private Vector2i WindowSize;
 
         float[] verts = {
-              -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
- 
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
- 
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
- 
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
- 
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
- 
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
         };
 
         uint[] indices = {
             0, 1, 2,
-        3, 4, 5,
-        6, 8, 7,
-        9, 11, 10,
-        12, 14, 13,
-        15, 17, 16,
-        18, 19, 20,
-        21, 22, 23,
-        24, 26, 25,
-        27, 29, 28,
-        30, 31, 32,
-        33, 34, 35,
+            3, 4, 5,
+            6, 8, 7,
+            9, 11, 10,
+            12, 14, 13,
+            15, 17, 16,
+            18, 19, 20,
+            21, 22, 23,
+            24, 26, 25,
+            27, 29, 28,
+            30, 31, 32,
+            33, 34, 35,
         };
 
         private VertexArray vertexArray;
         private ShaderProgram shaderProgram;
-        private Texture texture0;
-        private Texture texture1;
+        private Texture texture;
 
         private Transform transform;
-        private Matrix4 view;
-        private Matrix4 projection;
+        private Camera camera;
 
         public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
         {
@@ -135,22 +130,13 @@ namespace OpenTKGame.Core
 
             StbImage.stbi_set_flip_vertically_on_load(1);
 
-            texture0 = new Texture(TextureTarget.Texture2D);
+            texture = new Texture(TextureTarget.Texture2D);
 
-            texture0.Use();
-            texture0.SetWrapping(TextureWrapMode.Repeat);
-            texture0.SetFiltering(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
-            texture0.LoadTexture(new Texture.LoadTextureArgs("bricksx64.png"));
+            texture.Use();
+            texture.SetWrapping(TextureWrapMode.Repeat);
+            texture.SetFiltering(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
+            texture.LoadTexture(new Texture.LoadTextureArgs("bricksx64.png"));
             shaderProgram.SetInt("texture0", 0);
-
-            texture1 = new Texture(TextureTarget.Texture2D);
-
-            texture1.Use();
-            texture1.SetWrapping(TextureWrapMode.Repeat);
-            texture1.SetFiltering(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
-            texture1.LoadTexture(new Texture.LoadTextureArgs("bookshelf.png"));
-
-            shaderProgram.SetInt("texture1", 1);
 
             vertexShader.Dispose();
             fragmentShader.Dispose();
@@ -158,8 +144,10 @@ namespace OpenTKGame.Core
             transform = new Transform();
             transform.ForceUpdate();
 
-            projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)WindowSize.X / WindowSize.Y, 0.1f, 100.0f);
-            view = Matrix4.CreateTranslation(new Vector3(0, 0, -3.0f));
+            CursorState = CursorState.Grabbed;
+            camera = new Camera(74.0f, (float)WindowSize.X / WindowSize.Y);
+            camera.Transform.Move(Vector3.UnitZ * -3);
+            camera.Transform.ForceUpdate();
         }
 
         protected override void OnUnload()
@@ -170,34 +158,74 @@ namespace OpenTKGame.Core
             shaderProgram.Dispose();
         }
 
-        protected override void OnRenderFrame(FrameEventArgs args)
+        protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.ClearColor(System.Drawing.Color.DarkKhaki);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             vertexArray.Use();
-            texture0.Use(TextureUnit.Texture0);
-            texture1.Use(TextureUnit.Texture1);
+            texture.Use(TextureUnit.Texture0);
             shaderProgram.Use();
             shaderProgram.SetMatrix4("model", ref transform.GetTransformMatrix());
-            shaderProgram.SetMatrix4("projection", ref projection);
-            shaderProgram.SetMatrix4("view", ref view);
+            shaderProgram.SetMatrix4("view", ref camera.GetViewMatrix());
+            shaderProgram.SetMatrix4("projection", ref camera.GetProjectionMatrix());
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
             Context.SwapBuffers();
 
-            base.OnRenderFrame(args);
+            base.OnRenderFrame(e);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs args)
+        protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            base.OnUpdateFrame(args);
+            base.OnUpdateFrame(e);
 
-            transform.Rotate(Vector3.UnitY, 0.005f);
             transform.Update();
+            camera.Transform.Update();
 
-            if (KeyboardState.IsKeyDown(Keys.Escape))
+            if (!IsFocused)
+                return;
+
+            KeyboardState keyboard = KeyboardState;
+            MouseState mouse = MouseState;
+
+            Vector3 dir = new Vector3();
+            float speed = 3f;
+
+            if (keyboard.IsKeyDown(Keys.W))
+                dir -= camera.Transform.Forward();
+
+            if (keyboard.IsKeyDown(Keys.S))
+                dir += camera.Transform.Forward();
+
+            if (keyboard.IsKeyDown(Keys.A))
+                dir += camera.Transform.Right();
+
+            if (keyboard.IsKeyDown(Keys.D))
+                dir -= camera.Transform.Right();
+
+            if (keyboard.IsKeyDown(Keys.Space))
+                dir -= Vector3.UnitY;
+
+            if (keyboard.IsKeyDown(Keys.LeftControl))
+                dir += Vector3.UnitY;
+
+            if (dir.LengthSquared >= 0.1f)
+                camera.Transform.Move(dir.Normalized() * speed * (float)e.Time);
+
+            if (mouse.Delta.LengthSquared >= 0.001f)
             {
-                Close();
+                camera.Transform.Rotate(Vector3.UnitY, mouse.Delta.X * 0.05f);
+                camera.Transform.Rotate(camera.Transform.Right(), mouse.Delta.Y * 0.04f);
+            }
+
+            Console.WriteLine(1 / e.Time);
+
+            if (KeyboardState.IsKeyPressed(Keys.Escape))
+            {
+                if (CursorState == CursorState.Normal)
+                    Close();
+                else
+                    CursorState = CursorState.Normal;
             }
         }
 
@@ -205,7 +233,7 @@ namespace OpenTKGame.Core
         {
             base.OnFramebufferResize(e);
             WindowSize = (e.Width, e.Height);
-            projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)WindowSize.X / WindowSize.Y, 0.1f, 100.0f);
+            camera.ResetProjection(74.0f, (float)WindowSize.X / WindowSize.Y);
             GL.Viewport(0, 0, e.Width, e.Height);
         }
 

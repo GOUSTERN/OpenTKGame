@@ -6,8 +6,8 @@ layout (location = 1) in vec2 aTextureCords;
 out vec2 textureCoord;
 
 uniform mat4 model;
-uniform mat4 projection;
 uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {

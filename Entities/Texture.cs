@@ -1,13 +1,9 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using StbImageSharp;
-//using OpenTK.Mathematics;
-//using OpenTK.Windowing.Common;
-//using OpenTK.Windowing.Desktop;
-//using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace OpenTKGame.Core
 {
-    internal class Texture : IDisposable
+    public class Texture : IDisposable
     {
         public ImageResult ImageResult;
 

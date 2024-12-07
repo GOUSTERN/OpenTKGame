@@ -1,15 +1,11 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
-//using OpenTK.Windowing.Common;
-//using OpenTK.Windowing.Desktop;
-//using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using OpenTK.Mathematics;
 
 namespace OpenTKGame.Core
 {
-    internal class Transform
+    public class Transform
     {
-        private Vector3 _posititon;
-        public Vector3 Posititon
+        protected Vector3 _posititon;
+        public virtual Vector3 Posititon
         {
             get { return _posititon; }
             set
@@ -20,8 +16,8 @@ namespace OpenTKGame.Core
             }
         }
 
-        private Vector3 _scale;
-        public Vector3 Scale
+        protected Vector3 _scale;
+        public virtual Vector3 Scale
         {
             get { return Scale; }
             set
@@ -32,8 +28,8 @@ namespace OpenTKGame.Core
             }
         }
 
-        private Quaternion _rotation;
-        public Quaternion Rotation
+        protected Quaternion _rotation;
+        public virtual Quaternion Rotation
         {
             get { return Rotation; }
             set
@@ -44,13 +40,18 @@ namespace OpenTKGame.Core
             }
         }
 
-        private Matrix4 _translationMatrix;
-        private Matrix4 _scaleMatrix;
-        private Matrix4 _rotationMatrix;
+        protected Matrix4 _translationMatrix;
+        public ref Matrix4 GetTransformMatrix()
+        {
+            return ref _transformMatrix;
+        }
 
-        private Matrix4 _transformMatrix;
+        protected Matrix4 _scaleMatrix;
+        protected Matrix4 _rotationMatrix;
 
-        private bool _isDirty;
+        protected Matrix4 _transformMatrix;
+
+        protected bool _isDirty;
         
         public Transform()
         {
@@ -76,31 +77,40 @@ namespace OpenTKGame.Core
                 ForceUpdate();
         }
 
-        public void ForceUpdate()
+        public virtual void ForceUpdate()
         {
-            _transformMatrix = _rotationMatrix * _translationMatrix * _scaleMatrix;
+            _transformMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+            _isDirty = false;
         }
 
-        public void Move(Vector3 move)
+        public virtual void Move(Vector3 move)
         {
             Posititon = _posititon + move;
         }
 
-        public void Rotate(Vector3 euler)
+        public virtual void Rotate(Vector3 euler)
         {
-            Console.WriteLine(euler);
-            Console.WriteLine(euler * MathHelper.Pi / 180.0f);
             Rotation = _rotation * Quaternion.FromEulerAngles(euler * MathHelper.Pi / 180.0f);
         }
 
-        public void Rotate(Vector3 axis, float angle)
+        public virtual void Rotate(Vector3 axis, float angle)
         {
             Rotation = _rotation * Quaternion.FromAxisAngle(axis, MathHelper.DegreesToRadians(angle));
         }
 
-        public ref Matrix4 GetTransformMatrix()
+        public virtual Vector3 Up()
         {
-            return ref _transformMatrix;
+            return (_rotationMatrix * Vector4.UnitY).Xyz;
+        }
+
+        public virtual Vector3 Right()
+        {
+            return (_rotationMatrix * Vector4.UnitX).Xyz;
+        }
+
+        public virtual Vector3 Forward()
+        {
+            return (_rotationMatrix * Vector4.UnitZ * -1.0f).Xyz;
         }
     }
 }
