@@ -13,59 +13,7 @@ namespace OpenTKGame.Core
     {
         private Vector2i WindowSize;
 
-        float[] verts = {
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-        };
-
-        uint[] indices = {
-            0, 1, 2,
-            3, 4, 5,
-            6, 8, 7,
-            9, 11, 10,
-            12, 14, 13,
-            15, 17, 16,
-            18, 19, 20,
-            21, 22, 23,
-            24, 26, 25,
-            27, 29, 28,
-            30, 31, 32,
-            33, 34, 35,
-        };
+        private Formatters.ModelData model;
 
         private VertexArray vertexArray;
         private ShaderProgram shaderProgram;
@@ -85,9 +33,11 @@ namespace OpenTKGame.Core
             base.OnLoad();
             GL.Enable(EnableCap.DepthTest);
 
+            model = Formatters.ObjectFileReader.ReadFile("monkey.obj", 1)[0];
+
             VertexBuffer vertexBuffer = new VertexBuffer();
             vertexBuffer.Use();
-            vertexBuffer.BufferData(verts, sizeof(float));
+            vertexBuffer.BufferData(model.Vertices.ToArray(), sizeof(float));
 
             vertexArray = new VertexArray();
             vertexArray.Use();
@@ -103,20 +53,11 @@ namespace OpenTKGame.Core
                     SizeofType = sizeof(float)
                 }
             );
-            layout.AddAttribute(
-                new VertexArrayAttribute()
-                {
-                    Size = 2,
-                    Type = VertexAttribPointerType.Float,
-                    normalized = false,
-                    SizeofType = sizeof(float)
-                }
-            );
             vertexArray.SpecifyAttributeLayout(layout);
 
             ElementBuffer elementBuffer = new ElementBuffer();
             elementBuffer.Use();
-            elementBuffer.BufferData(indices, sizeof(uint));
+            elementBuffer.BufferData(model.Indices.ToArray(), sizeof(uint));
 
             VertexShader vertexShader = new VertexShader();
             vertexShader.Compile(LoadShaderSource("Test.vert"));
@@ -128,7 +69,7 @@ namespace OpenTKGame.Core
             shaderProgram.LinkProgram();
             shaderProgram.Use();
 
-            StbImage.stbi_set_flip_vertically_on_load(1);
+            /*StbImage.stbi_set_flip_vertically_on_load(1);
 
             texture = new Texture(TextureTarget.Texture2D);
 
@@ -136,7 +77,7 @@ namespace OpenTKGame.Core
             texture.SetWrapping(TextureWrapMode.Repeat);
             texture.SetFiltering(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
             texture.LoadTexture(new Texture.LoadTextureArgs("bricksx64.png"));
-            shaderProgram.SetInt("texture0", 0);
+            shaderProgram.SetInt("texture0", 0);*/
 
             vertexShader.Dispose();
             fragmentShader.Dispose();
@@ -148,16 +89,6 @@ namespace OpenTKGame.Core
             camera = new Camera(74.0f, (float)WindowSize.X / WindowSize.Y);
             camera.Transform.Move(Vector3.UnitZ * -3);
             camera.Transform.ForceUpdate();
-
-            try
-            {
-                List<Formatters.ModelData> models = Formatters.ObjectFileReader.ReadFile("monkey.obj");
-                Console.WriteLine(models[0].name);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
         }
 
         protected override void OnUnload()
@@ -174,12 +105,12 @@ namespace OpenTKGame.Core
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             vertexArray.Use();
-            texture.Use(TextureUnit.Texture0);
+            //texture.Use(TextureUnit.Texture0);
             shaderProgram.Use();
             shaderProgram.SetMatrix4("model", ref transform.GetTransformMatrix());
             shaderProgram.SetMatrix4("view", ref camera.GetViewMatrix());
             shaderProgram.SetMatrix4("projection", ref camera.GetProjectionMatrix());
-            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, model.Indices.Count, DrawElementsType.UnsignedInt, 0);
             Context.SwapBuffers();
 
             base.OnRenderFrame(e);

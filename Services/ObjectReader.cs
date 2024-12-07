@@ -4,21 +4,21 @@ namespace OpenTKGame.Core.Formatters
 {
     public struct ModelData
     {
-        public string name;
+        public string Name;
 
-        public List<float> verts;
-        public List<uint> indices;
+        public List<float> Vertices;
+        public List<uint> Indices;
 
         public ModelData()
         {
-            verts = new List<float>();
-            indices = new List<uint>();
+            Vertices = new List<float>();
+            Indices = new List<uint>();
         }
     }
 
     public static class ObjectFileReader
     {
-        public static List<ModelData> ReadFile(string filePath)
+        public static List<ModelData> ReadFile(string filePath, uint indecesStart = 0)
         {
             List<ModelData> models = new List<ModelData>();
 
@@ -34,21 +34,19 @@ namespace OpenTKGame.Core.Formatters
                     string[] elements = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                     if (elements.Count() != 0)
-                        ReadElements(elements, models);
+                        ReadElements(elements, models, indecesStart);
                 }
             }
 
             return models;
         }
 
-        private static void ReadElements(string[] elements, List<ModelData> models)
+        private static void ReadElements(string[] elements, List<ModelData> models, uint indecesStart)
         {
-            Console.WriteLine(string.Join(' ', elements));
-
             if (models.Count == 0)
             {
                 ModelData newModel = new ModelData();
-                newModel.name = elements[1];
+                newModel.Name = elements[1];
                 models.Add(newModel);
                 return;
             }
@@ -58,25 +56,25 @@ namespace OpenTKGame.Core.Formatters
             {
                 case "o":
                     ModelData newModel = new ModelData();
-                    newModel.name = elements[1];
+                    newModel.Name = elements[1];
                     models.Add(newModel);
                     break;
 
                 case "v":
                     for (int i = 1; i <= 3; i++)//  add x y z
-                        curModel.verts.Add(float.Parse(elements[i], CultureInfo.InvariantCulture));
+                        curModel.Vertices.Add(float.Parse(elements[i], CultureInfo.InvariantCulture));
                     break;
                 
                 case "f":
                     for (int i = 1; i <= 3; i++)
-                        curModel.indices.Add(uint.Parse(elements[i]));
+                        curModel.Indices.Add(uint.Parse(elements[i]) - indecesStart);
                     break;
 
                 case "s":
                     break;
 
                 default:
-                    throw new Exception("Undefined befaviour: { elements[0] } in + { string.Join(' ', elements) }");
+                    throw new Exception("Undefined befaviour: { elements[0] } on + { string.Join(' ', elements) }");
             }
         }
     }
