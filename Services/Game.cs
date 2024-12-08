@@ -22,7 +22,8 @@ namespace OpenTKGame.Core
         private Transform transform;
         private Camera camera;
 
-        public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
+        public Game(int width, int height, string title)
+                 : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
         {
             WindowSize = (width, height);
             CenterWindow(WindowSize);
@@ -87,8 +88,8 @@ namespace OpenTKGame.Core
 
             CursorState = CursorState.Grabbed;
             camera = new Camera(74.0f, (float)WindowSize.X / WindowSize.Y);
-            camera.Transform.Move(Vector3.UnitZ * -3);
-            camera.Transform.ForceUpdate();
+            camera.transform.Move(Vector3.UnitZ * -3);
+            camera.transform.ForceUpdate();
         }
 
         protected override void OnUnload()
@@ -107,9 +108,9 @@ namespace OpenTKGame.Core
             vertexArray.Use();
             //texture.Use(TextureUnit.Texture0);
             shaderProgram.Use();
-            shaderProgram.SetMatrix4("model", ref transform.GetTransformMatrix());
-            shaderProgram.SetMatrix4("view", ref camera.GetViewMatrix());
-            shaderProgram.SetMatrix4("projection", ref camera.GetProjectionMatrix());
+            Matrix4 mvp = transform.GetTransformMatrix() * camera.GetViewProjectionMatrix();
+            shaderProgram.SetMatrix4("mvp", ref mvp);
+            
             GL.DrawElements(PrimitiveType.Triangles, model.Indices.Count, DrawElementsType.UnsignedInt, 0);
             Context.SwapBuffers();
 
@@ -121,7 +122,7 @@ namespace OpenTKGame.Core
             base.OnUpdateFrame(e);
 
             transform.Update();
-            camera.Transform.Update();
+            camera.Update();
 
             if (!IsFocused)
                 return;
@@ -133,16 +134,16 @@ namespace OpenTKGame.Core
             float speed = 3f;
 
             if (keyboard.IsKeyDown(Keys.W))
-                dir -= camera.Transform.Forward();
+                dir -= camera.transform.Forward();
 
             if (keyboard.IsKeyDown(Keys.S))
-                dir += camera.Transform.Forward();
+                dir += camera.transform.Forward();
 
             if (keyboard.IsKeyDown(Keys.A))
-                dir += camera.Transform.Right();
+                dir += camera.transform.Right();
 
             if (keyboard.IsKeyDown(Keys.D))
-                dir -= camera.Transform.Right();
+                dir -= camera.transform.Right();
 
             if (keyboard.IsKeyDown(Keys.Space))
                 dir -= Vector3.UnitY;
@@ -151,12 +152,12 @@ namespace OpenTKGame.Core
                 dir += Vector3.UnitY;
 
             if (dir.LengthSquared >= 0.1f)
-                camera.Transform.Move(dir.Normalized() * speed * (float)e.Time);
+                camera.transform.Move(dir.Normalized() * speed * (float)e.Time);
 
             if (mouse.Delta.LengthSquared >= 0.001f)
             {
-                camera.Transform.Rotate(Vector3.UnitY, mouse.Delta.X * 0.05f);
-                camera.Transform.Rotate(camera.Transform.Right(), mouse.Delta.Y * 0.04f);
+                camera.transform.Rotate(Vector3.UnitY, mouse.Delta.X * 0.05f);
+                camera.transform.Rotate(camera.transform.Right(), mouse.Delta.Y * 0.04f);
             }
 
             //Console.WriteLine(1 / e.Time);

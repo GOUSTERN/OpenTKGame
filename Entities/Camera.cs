@@ -4,29 +4,88 @@ namespace OpenTKGame.Core
 {
     public class Camera
     {
-        public Transform Transform;
-        
+        public Transform transform;
+
+        private float _aspect;
+        public float Aspect
+        {
+            get { return _aspect; }
+            set
+            {
+                _aspect = value;
+                ResetProjection(_fovY, _aspect);
+            }
+        }
+
+        private float _fovY;
+        public float FovY
+        {
+            get { return _fovY; }
+            set
+            {
+                _fovY = value;
+                ResetProjection(_fovY, _aspect);
+            }
+        }
+
+        private float _depthNear;
+        public float DepthNear
+        {
+            get { return _depthNear; }
+            set
+            {
+                _depthNear = value;
+                ResetProjection(_fovY, _aspect);
+            }
+        }
+
+        private float _depthFar;
+        public float DepthFar
+        {
+            get { return _depthFar; }
+            set
+            {
+                _depthFar = value;
+                ResetProjection(_fovY, _aspect);
+            }
+        }
+
         private Matrix4 _projection;
+        private bool _isDirty;
+
+        private Matrix4 _viewProjection;
 
         public Camera(float fovY, float aspect, float depthNear = 0.1f, float depthFar = 100.0f)
         {
-            ResetProjection(fovY, aspect, depthNear, depthFar);
-            Transform = new CameraTransform();
+            _fovY = fovY;
+            _aspect = aspect;
+            _depthNear = depthNear;
+            _depthFar = depthFar;
+
+            ResetProjection(fovY, aspect);
+            transform = new CameraTransform();
         }
 
-        public void ResetProjection(float fovY, float aspect, float depthNear = 0.1f, float depthFar = 100.0f)
+        public void ResetProjection(float fovY, float aspect)
         {
-            _projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovY), aspect, depthNear, depthFar);
+            _projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovY), aspect, _depthNear, _depthFar);
+            _isDirty = true;
         }
 
-        public ref Matrix4 GetViewMatrix()
+        public void Update()
         {
-            return ref Transform.GetTransformMatrix();
+            if (transform.IsDirty || _isDirty)
+            {
+                transform.Update();
+
+                _viewProjection = transform.GetTransformMatrix() * _projection;
+                _isDirty = false;
+            }
         }
 
-        public ref Matrix4 GetProjectionMatrix()
+        public ref Matrix4 GetViewProjectionMatrix()
         {
-            return ref _projection;
+            return ref _viewProjection;
         }
     }
 }

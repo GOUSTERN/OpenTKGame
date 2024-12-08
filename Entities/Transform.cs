@@ -52,6 +52,10 @@ namespace OpenTKGame.Core
         protected Matrix4 _transformMatrix;
 
         protected bool _isDirty;
+        public virtual bool IsDirty
+        {
+            get { return _isDirty; }
+        }
         
         public Transform()
         {
