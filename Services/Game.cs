@@ -17,7 +17,7 @@ namespace OpenTKGame.Core
 
         private VertexArray vertexArray;
         private ShaderProgram shaderProgram;
-        private Texture texture;
+        //private Texture texture;
 
         private Transform transform;
         private Camera camera;
@@ -162,7 +162,7 @@ namespace OpenTKGame.Core
                 camera.transform.Rotate(camera.transform.Right(), mouse.Delta.Y * 0.04f);
             }
 
-            Console.WriteLine(1 / e.Time);
+            //Console.WriteLine(1 / e.Time);
             //Console.WriteLine($"forward: { camera.transform.Forward() }");
 
             if (KeyboardState.IsKeyPressed(Keys.Escape))
