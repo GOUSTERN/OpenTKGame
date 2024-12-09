@@ -1,17 +1,17 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+﻿using System.Numerics;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using StbImageSharp;
-
 using OpenTKGame.Graphics;
 
 namespace OpenTKGame.Core
 {
     public class Game : GameWindow
     {
-        private Vector2i WindowSize;
+        private int windowWidth;
+        private int windowHeight;
 
         private Formatters.ModelData model;
 
@@ -25,8 +25,8 @@ namespace OpenTKGame.Core
         public Game(int width, int height, string title)
                  : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
         {
-            WindowSize = (width, height);
-            CenterWindow(WindowSize);
+            (windowWidth, windowHeight) = (width, height);
+            CenterWindow(new OpenTK.Mathematics.Vector2i(width, height));
         }
 
         protected override void OnLoad()
@@ -55,7 +55,7 @@ namespace OpenTKGame.Core
                 }
             );
             vertexArray.SpecifyAttributeLayout(layout);
-
+            
             ElementBuffer elementBuffer = new ElementBuffer();
             elementBuffer.Use();
             elementBuffer.BufferData(model.Indices.ToArray(), sizeof(uint));
@@ -87,7 +87,7 @@ namespace OpenTKGame.Core
             transform.ForceUpdate();
 
             CursorState = CursorState.Grabbed;
-            camera = new Camera(74.0f, (float)WindowSize.X / WindowSize.Y);
+            camera = new Camera(74.0f, (float)windowWidth / windowHeight);
             camera.transform.Move(Vector3.UnitZ * -3);
             camera.transform.ForceUpdate();
         }
@@ -104,11 +104,11 @@ namespace OpenTKGame.Core
         {
             GL.ClearColor(System.Drawing.Color.DarkKhaki);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+            
             vertexArray.Use();
             //texture.Use(TextureUnit.Texture0);
             shaderProgram.Use();
-            Matrix4 mvp = transform.GetTransformMatrix() * camera.GetViewProjectionMatrix();
+            Matrix4x4 mvp = transform.GetTransformMatrix() * camera.GetViewProjectionMatrix();
             shaderProgram.SetMatrix4("mvp", ref mvp);
             
             GL.DrawElements(PrimitiveType.Triangles, model.Indices.Count, DrawElementsType.UnsignedInt, 0);
@@ -120,6 +120,8 @@ namespace OpenTKGame.Core
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
+            //transform.Rotate(Vector3.UnitX + Vector3.UnitZ + Vector3.UnitY, (float)e.Time * 50f);
 
             transform.Update();
             camera.Update();
@@ -151,8 +153,8 @@ namespace OpenTKGame.Core
             if (keyboard.IsKeyDown(Keys.LeftControl))
                 dir += Vector3.UnitY;
 
-            if (dir.LengthSquared >= 0.1f)
-                camera.transform.Move(dir.Normalized() * speed * (float)e.Time);
+            if (dir.LengthSquared() >= 0.1f)
+                camera.transform.Move(dir / dir.Length() * speed * (float)e.Time);
 
             if (mouse.Delta.LengthSquared >= 0.001f)
             {
@@ -160,7 +162,8 @@ namespace OpenTKGame.Core
                 camera.transform.Rotate(camera.transform.Right(), mouse.Delta.Y * 0.04f);
             }
 
-            //Console.WriteLine(1 / e.Time);
+            Console.WriteLine(1 / e.Time);
+            //Console.WriteLine($"forward: { camera.transform.Forward() }");
 
             if (KeyboardState.IsKeyPressed(Keys.Escape))
             {
@@ -174,8 +177,8 @@ namespace OpenTKGame.Core
         protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
         {
             base.OnFramebufferResize(e);
-            WindowSize = (e.Width, e.Height);
-            camera.ResetProjection(74.0f, (float)WindowSize.X / WindowSize.Y);
+            (windowWidth, windowHeight) = (e.Width, e.Height);
+            camera.ResetProjection(74.0f, (float)windowWidth / windowHeight);
             GL.Viewport(0, 0, e.Width, e.Height);
         }
 

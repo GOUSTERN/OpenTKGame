@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿using System.Numerics;
 
 namespace OpenTKGame.Core
 {
@@ -11,7 +11,7 @@ namespace OpenTKGame.Core
             set
             {
                 _posititon = value;
-                _translationMatrix = Matrix4.CreateTranslation(_posititon);
+                _translationMatrix = Matrix4x4.CreateTranslation(_posititon);
                 _isDirty = true;
             }
         }
@@ -23,7 +23,7 @@ namespace OpenTKGame.Core
             set
             {
                 _scale = value;
-                _scaleMatrix = Matrix4.CreateScale(_scale);
+                _scaleMatrix = Matrix4x4.CreateScale(_scale);
                 _isDirty = true;
             }
         }
@@ -35,28 +35,28 @@ namespace OpenTKGame.Core
             set
             {
                 _rotation = value;
-                _rotationMatrix = Matrix4.CreateFromQuaternion(_rotation);
+                _rotationMatrix = Matrix4x4.CreateFromQuaternion(_rotation);
                 _isDirty = true;
             }
         }
 
-        protected Matrix4 _translationMatrix;
-        public ref Matrix4 GetTransformMatrix()
+        protected Matrix4x4 _translationMatrix;
+        public ref Matrix4x4 GetTransformMatrix()
         {
             return ref _transformMatrix;
         }
 
-        protected Matrix4 _scaleMatrix;
-        protected Matrix4 _rotationMatrix;
+        protected Matrix4x4 _scaleMatrix;
+        protected Matrix4x4 _rotationMatrix;
 
-        protected Matrix4 _transformMatrix;
+        protected Matrix4x4 _transformMatrix;
 
         protected bool _isDirty;
         public virtual bool IsDirty
         {
             get { return _isDirty; }
         }
-        
+
         public Transform()
         {
             Posititon = Vector3.Zero;
@@ -92,29 +92,24 @@ namespace OpenTKGame.Core
             Posititon = _posititon + move;
         }
 
-        public virtual void Rotate(Vector3 euler)
-        {
-            Rotation = _rotation * Quaternion.FromEulerAngles(euler * MathHelper.Pi / 180.0f);
-        }
-
         public virtual void Rotate(Vector3 axis, float angle)
         {
-            Rotation = _rotation * Quaternion.FromAxisAngle(axis, MathHelper.DegreesToRadians(angle));
+            Rotation = _rotation * Quaternion.CreateFromAxisAngle(axis, angle * MathF.PI / 180.0f);
         }
 
-        public virtual Vector3 Up()
+        public Vector3 Right()
         {
-            return (_rotationMatrix * Vector4.UnitY).Xyz;
+            return new Vector3(_rotationMatrix.M11, _rotationMatrix.M21, _rotationMatrix.M31);
+        }
+        
+        public Vector3 Up()
+        {
+            return new Vector3(_rotationMatrix.M12, _rotationMatrix.M22, _rotationMatrix.M33);
         }
 
-        public virtual Vector3 Right()
+        public Vector3 Forward()
         {
-            return (_rotationMatrix * Vector4.UnitX).Xyz;
-        }
-
-        public virtual Vector3 Forward()
-        {
-            return (_rotationMatrix * Vector4.UnitZ * -1.0f).Xyz;
+            return new Vector3(-_rotationMatrix.M13, -_rotationMatrix.M23, -_rotationMatrix.M33);
         }
     }
 }

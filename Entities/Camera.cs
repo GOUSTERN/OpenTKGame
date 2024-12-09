@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿using System.Numerics;
 
 namespace OpenTKGame.Core
 {
@@ -50,10 +50,10 @@ namespace OpenTKGame.Core
             }
         }
 
-        private Matrix4 _projection;
+        private Matrix4x4 _projection;
         private bool _isDirty;
 
-        private Matrix4 _viewProjection;
+        private Matrix4x4 _viewProjection;
 
         public Camera(float fovY, float aspect, float depthNear = 0.1f, float depthFar = 100.0f)
         {
@@ -68,7 +68,7 @@ namespace OpenTKGame.Core
 
         public void ResetProjection(float fovY, float aspect)
         {
-            _projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fovY), aspect, _depthNear, _depthFar);
+            _projection = Matrix4x4.CreatePerspectiveFieldOfView(fovY * MathF.PI / 180.0f, aspect, _depthNear, _depthFar);
             _isDirty = true;
         }
 
@@ -83,7 +83,7 @@ namespace OpenTKGame.Core
             }
         }
 
-        public ref Matrix4 GetViewProjectionMatrix()
+        public ref Matrix4x4 GetViewProjectionMatrix()
         {
             return ref _viewProjection;
         }

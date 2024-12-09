@@ -1,5 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+﻿using System.Numerics;
+using OpenTK.Graphics.OpenGL4;
 
 namespace OpenTKGame.Graphics
 {
@@ -48,14 +48,25 @@ namespace OpenTKGame.Graphics
             GL.Uniform1(TryGetUniform(uniformName), value);
         }
 
-        public void SetVector4(string uniformName, Vector4 vector)
+        /*public void SetVector4(string uniformName, Vector4 vector)
         {
             GL.Uniform4(TryGetUniform(uniformName), vector);
-        }
+        }*/
 
-        public void SetMatrix4(string uniformName, ref Matrix4 matrix)
+        /*public void SetMatrix4(string uniformName, ref Matrix4 matrix)
         {
             GL.UniformMatrix4(TryGetUniform(uniformName), true, ref matrix);
+        }*/
+
+        public void SetMatrix4(string uniformName, ref Matrix4x4 matrix)
+        {
+            unsafe
+            {
+                fixed (float* matrixPtr = &matrix.M11)
+                {
+                    GL.UniformMatrix4(TryGetUniform(uniformName), 1, true, matrixPtr);
+                }
+            }
         }
 
         private int TryGetUniform(string name)
