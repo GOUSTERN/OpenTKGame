@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace OpenTKGame.Graphics
 {
-     internal class VertexArrayLayout : IEnumerable<VertexArrayAttribute>
+    internal class VertexArrayLayout : IEnumerable<VertexArrayAttribute>
     {
         public int Stride { get; private set; }
 

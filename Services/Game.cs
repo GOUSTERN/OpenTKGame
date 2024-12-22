@@ -13,11 +13,10 @@ namespace OpenTKGame.Core
         private int windowWidth;
         private int windowHeight;
 
-        private Formatters.ModelData model;
-
         private VertexArray vertexArray;
         private ShaderProgram shaderProgram;
-        //private Texture texture;
+        private Model model;
+        private Texture texture;
 
         private Transform transform;
         private Camera camera;
@@ -34,7 +33,7 @@ namespace OpenTKGame.Core
             base.OnLoad();
             GL.Enable(EnableCap.DepthTest);
 
-            model = Formatters.ObjectFileReader.ReadFile("monkey.obj", 1)[0];
+            model = CreateModel(Formatters.ObjectFileReader.ReadFile("monkeyUV.obj")[0]);
 
             VertexBuffer vertexBuffer = new VertexBuffer();
             vertexBuffer.Use();
@@ -54,8 +53,17 @@ namespace OpenTKGame.Core
                     SizeofType = sizeof(float)
                 }
             );
+            layout.AddAttribute(
+                new VertexArrayAttribute()
+                {
+                    Size = 2,
+                    Type = VertexAttribPointerType.Float,
+                    normalized = false,
+                    SizeofType = sizeof(float)
+                }
+            );
             vertexArray.SpecifyAttributeLayout(layout);
-            
+
             ElementBuffer elementBuffer = new ElementBuffer();
             elementBuffer.Use();
             elementBuffer.BufferData(model.Indices.ToArray(), sizeof(uint));
@@ -70,7 +78,7 @@ namespace OpenTKGame.Core
             shaderProgram.LinkProgram();
             shaderProgram.Use();
 
-            /*StbImage.stbi_set_flip_vertically_on_load(1);
+            StbImage.stbi_set_flip_vertically_on_load(1);
 
             texture = new Texture(TextureTarget.Texture2D);
 
@@ -78,7 +86,7 @@ namespace OpenTKGame.Core
             texture.SetWrapping(TextureWrapMode.Repeat);
             texture.SetFiltering(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
             texture.LoadTexture(new Texture.LoadTextureArgs("bricksx64.png"));
-            shaderProgram.SetInt("texture0", 0);*/
+            shaderProgram.SetInt("texture0", 0);
 
             vertexShader.Dispose();
             fragmentShader.Dispose();
@@ -104,13 +112,13 @@ namespace OpenTKGame.Core
         {
             GL.ClearColor(System.Drawing.Color.DarkKhaki);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            
+
             vertexArray.Use();
-            //texture.Use(TextureUnit.Texture0);
+            texture.Use(TextureUnit.Texture0);
             shaderProgram.Use();
             Matrix4x4 mvp = transform.GetTransformMatrix() * camera.GetViewProjectionMatrix();
             shaderProgram.SetMatrix4("mvp", ref mvp);
-            
+
             GL.DrawElements(PrimitiveType.Triangles, model.Indices.Count, DrawElementsType.UnsignedInt, 0);
             Context.SwapBuffers();
 
@@ -180,6 +188,67 @@ namespace OpenTKGame.Core
             (windowWidth, windowHeight) = (e.Width, e.Height);
             camera.ResetProjection(74.0f, (float)windowWidth / windowHeight);
             GL.Viewport(0, 0, e.Width, e.Height);
+        }
+
+        struct Model
+        {
+            public List<float> Vertices;
+            public List<uint> Indices;
+
+            public Model(int verticesCount = 0, int indicesCount = 0)
+            {
+                Vertices = new List<float>(verticesCount * 5);
+                Indices = new List<uint>(indicesCount);
+            }
+        }
+
+        private Model CreateModel(Formatters.ModelData modelData)
+        {
+            Model model = new Model(Math.Max(modelData.Positions.Count / 3, modelData.UVCords.Count), modelData.Indices.Count);
+
+            if (modelData.Positions.Count > modelData.UVCords.Count)
+            {
+                for (int i = 0; i < modelData.Positions.Count; i += 3)
+                {
+                    model.Vertices.Add(modelData.Positions[i + 0]);
+                    model.Vertices.Add(modelData.Positions[i + 1]);
+                    model.Vertices.Add(modelData.Positions[i + 2]);
+                    model.Vertices.Add(0);
+                    model.Vertices.Add(0);
+                }
+
+                foreach (var i in modelData.Indices)
+                {
+                    int vertexStart = i.Item1 * 5;
+                    model.Vertices[vertexStart + 3] = modelData.UVCords[i.Item2 * 2 + 0];
+                    model.Vertices[vertexStart + 4] = modelData.UVCords[i.Item2 * 2 + 1];
+
+                    model.Indices.Add((uint)i.Item1);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < modelData.UVCords.Count; i += 2)
+                {
+                    model.Vertices.Add(0);
+                    model.Vertices.Add(0);
+                    model.Vertices.Add(0);
+                    model.Vertices.Add(modelData.UVCords[i + 0]);
+                    model.Vertices.Add(modelData.UVCords[i + 1]);
+                }
+
+                foreach (var i in modelData.Indices)
+                {
+                    int vertexStart = i.Item2 * 5;
+                    model.Vertices[vertexStart + 0] = modelData.Positions[i.Item1 * 3 + 0];
+                    model.Vertices[vertexStart + 1] = modelData.Positions[i.Item1 * 3 + 1];
+                    model.Vertices[vertexStart + 2] = modelData.Positions[i.Item1 * 3 + 2];
+
+                    model.Indices.Add((uint)i.Item2);
+                }
+            }
+
+            return model;
         }
 
         private string LoadShaderSource(string filePath)
